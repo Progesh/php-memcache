@@ -1,0 +1,77 @@
+<?php
+/**
+ * Manages the cache. Has functions to Get, Set, Clear Values to/from the cache.
+ * Author               : Progesh Subba
+ */
+ 
+class MemCacheManager {
+	
+	protected $memcache ;
+	protected $globalPrefix ;
+	
+	/**
+	 * Default constructor. establishes the connection to memcache server
+     * by reading server details from mamcache_config file.
+	 */
+	function __construct() {
+		$this->globalPrefix = "<Prefix>" ;
+		$this->memcache = new \Memcached();
+		$this->memcache->addServer(MEMCACHE_SERVER, 11211);
+	}
+	
+	/**
+	 * Sets value in memcache object
+	 * @param string $key
+	 * @param string $value
+	 * @param number $expireTime
+	 * @return boolean
+	 */
+	function set($key, $value, $expireTime = 0) {
+		$key = $this->globalPrefix.$key;
+		if(!empty($this->memcache)) {
+			return $this->memcache->set($key, $value, $expireTime);
+		}
+		
+	}
+	
+	/**
+	 * Get value for the key from memcache object
+	 * @param string $key
+	 * @return mixed
+	 */
+	function get($key) {
+		$key = $this->globalPrefix.$key;
+		if(!empty($this->memcache)) {
+			return $this->memcache->get($key);
+		}
+	}
+	
+	/**
+	 * Delete perticular key from memcache object
+	 * @param string $key
+	 * @return boolean
+	 */
+	function delete($key) {
+		$key = $this->globalPrefix.$key;
+		if(!empty($this->memcache)) {
+			return $this->memcache->delete($key);
+		}
+	}
+	
+	/**
+	 * Clears complete data from memcache server
+	 * @return boolean
+	 */
+	function flush() {
+		if(!empty($this->memcache)) {
+			return $this->memcache->flush();
+		}
+	}
+	
+	/**
+	 * Default destructor. closes the connection to memcache server
+	 */
+	public function __destruct() {
+		$this->memcache = null ;
+	}
+}
